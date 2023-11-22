@@ -15,9 +15,13 @@ var consumer= new EventingBasicConsumer(channel);
 
 var queueName = channel.QueueDeclare().QueueName;
 
-var routeKey = "*.Error.*";
-//var routeKey = "Error.#";
-channel.QueueBind(queueName, "logs-topic", routeKey);
+Dictionary<string, object> headers = new Dictionary<string, object>();
+
+headers.Add("format", "pdf");
+headers.Add("shape", "a4");
+headers.Add("x-match", "all");
+
+channel.QueueBind(queueName, "header-exchange",string.Empty,headers);
 
 channel.BasicConsume(queueName, false, consumer);
 

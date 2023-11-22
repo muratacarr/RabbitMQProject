@@ -10,24 +10,18 @@ factory.Uri = new("amqps://kxqqxjni:CMnzfY4D8EJPC2k4Nz5atz-SSTKGVic0@sparrow.rmq
 using var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
 
-channel.ExchangeDeclare("logs-topic", durable: true, type: ExchangeType.Topic);
+channel.ExchangeDeclare("header-exchange", durable: true, type: ExchangeType.Headers);
 
-Random rnd = new Random();
-Enumerable.Range(1, 30).ToList().ForEach(x =>
-{
-    LogNames log1 = (LogNames)rnd.Next(1, 5);
-    LogNames log2 = (LogNames)rnd.Next(1, 5);
-    LogNames log3 = (LogNames)rnd.Next(1, 5);
+Dictionary<string,object> headers= new Dictionary<string, object>();
 
-    var routeKey = $"{log1}.{log2}.{log3}";
+headers.Add("format", "pdf");
+headers.Add("shape", "a");
 
-    string message = $"log-type : {log1}-{log2}-{log3}";
-    var messageBody = Encoding.UTF8.GetBytes(message);
-    channel.BasicPublish("logs-topic", routeKey, null, messageBody);
+var properties=channel.CreateBasicProperties();
+properties.Headers=headers;
 
-    Console.WriteLine($"Log gönderilmiştir : {message}");
-});
+channel.BasicPublish("header-exchange", string.Empty, properties, Encoding.UTF8.GetBytes("header mesajım"));
 
-
+Console.WriteLine("Mesaj Gönderilmiştir.");
 
 Console.ReadLine();
