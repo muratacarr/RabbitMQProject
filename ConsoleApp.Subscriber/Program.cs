@@ -12,12 +12,21 @@ var channel = connection.CreateModel();
 channel.BasicQos(0, 1, true);
 
 var consumer= new EventingBasicConsumer(channel);
-channel.BasicConsume("hello-queue", false, consumer);
+
+var queueName = channel.QueueDeclare().QueueName;
+
+var routeKey = "*.Error.*";
+//var routeKey = "Error.#";
+channel.QueueBind(queueName, "logs-topic", routeKey);
+
+channel.BasicConsume(queueName, false, consumer);
+
+Console.WriteLine("Loglar dinleniyor...");
 
 consumer.Received += (object sender, BasicDeliverEventArgs e) =>
 {
     var message = Encoding.UTF8.GetString(e.Body.ToArray());
-
+    Thread.Sleep(1000);
     Console.WriteLine("Gelen Mesaj : " + message);
     channel.BasicAck(e.DeliveryTag, false);
 };
