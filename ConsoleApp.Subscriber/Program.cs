@@ -7,19 +7,24 @@ factory.Uri = new("amqps://kxqqxjni:CMnzfY4D8EJPC2k4Nz5atz-SSTKGVic0@sparrow.rmq
 
 using var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
-//channel.QueueDeclare("hello-queue", true, false, false);
 
 channel.BasicQos(0, 1, true);
 
 var consumer= new EventingBasicConsumer(channel);
-channel.BasicConsume("hello-queue", false, consumer);
+var queueName = "direct-queue-Critical";
+
+Console.WriteLine("Loglar dinleniyor...");
 
 consumer.Received += (object sender, BasicDeliverEventArgs e) =>
 {
     var message = Encoding.UTF8.GetString(e.Body.ToArray());
-
+    Thread.Sleep(1000);
     Console.WriteLine("Gelen Mesaj : " + message);
+
+    File.AppendAllText("log-critical.txt", message + "\n");
+
     channel.BasicAck(e.DeliveryTag, false);
 };
+channel.BasicConsume(queueName, false, consumer);
 
 Console.ReadLine();
