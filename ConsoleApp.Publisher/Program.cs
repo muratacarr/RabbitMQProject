@@ -4,9 +4,9 @@ using ConsoleApp.Publisher;
 using RabbitMQ.Client;
 using System.Text;
 
+//Publisher
 var factory = new ConnectionFactory();
 factory.Uri = new("amqps://kxqqxjni:CMnzfY4D8EJPC2k4Nz5atz-SSTKGVic0@sparrow.rmq.cloudamqp.com/kxqqxjni");
-
 using var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
 
